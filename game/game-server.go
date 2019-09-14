@@ -42,6 +42,12 @@ func (gameServer *GameServer) Start() {
 
 // AddToServer ...
 func AddToServer(Ctx *context.Context, ID int64) {
+	_, ok := MGameServer.clientMap.Load(ID)
+	if ok {
+		models.MConfig.MLogger.Error("AddToServer repeat ", ID)
+		MGameServer.clientMap.Delete(ID)
+	}
+
 	ws, err := upgrader.Upgrade(Ctx.ResponseWriter, Ctx.Request, nil)
 	if err != nil {
 		models.MConfig.MLogger.Error("get ws error:\n%s", err)
@@ -64,6 +70,8 @@ func AddToServer(Ctx *context.Context, ID int64) {
 
 // GoGameClientHandle ...
 func GoGameClientHandle(gameClient *GameClient) {
+	gameClient.Conn.WriteJSON(gameClient.Data)
+
 	for {
 		// 获取指令
 		var order models.GameOrder
@@ -73,7 +81,7 @@ func GoGameClientHandle(gameClient *GameClient) {
 			return
 		}
 
-		order.Data = order.Data.(string) + "(dealed)"
+		// order.Data = order.Data.(string) + "(dealed)"
 
 		MGameServer.clientMap.Range(func(key, client_ interface{}) bool {
 			client, ok := (client_).(*GameClient)
