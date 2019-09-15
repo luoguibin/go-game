@@ -8,7 +8,7 @@ type GameData struct {
 	Level int    `gorm:"column:level" json:"level"`
 	Blood int    `gorm:"column:blood" json:"blood"`
 
-	Speed float64 `gorm:"-" json:"speed"`
+	Speed float64 `gorm:"column:speed" json:"speed"`
 	X     float64 `gorm:"column:x" json:"x"`
 	Z     float64 `gorm:"column:z" json:"z"`
 
@@ -25,7 +25,7 @@ func initSystemGameData() {
 		initSystemGameShield()
 	}
 
-	CreateGameData(15625045984, "乂末", 100, 10000, 500, 0, 0)
+	CreateGameData(15625045984, "乂末", 100, 10000, 50, 0, 0)
 	CreateGameData(15622222222, "Morge", 100, 10000, 50, 0, 0)
 	CreateGameData(15666666666, "Morge", 100, 10000, 50, 0, 0)
 	CreateGameData(15688888888, "SghenMorge", 100, 10000, 50, 0, 0)

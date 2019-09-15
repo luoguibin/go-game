@@ -64,13 +64,22 @@ func AddToServer(Ctx *context.Context, ID int64) {
 		return
 	}
 	gameClient.Data = data
-	MGameServer.clientMap.Store(ID, gameClient)
+	MGameServer.clientMap.Store(gameClient.ID, gameClient)
+
 	go GoGameClientHandle(gameClient)
 }
 
 // GoGameClientHandle ...
 func GoGameClientHandle(gameClient *GameClient) {
-	gameClient.Conn.WriteJSON(gameClient.Data)
+	MGameServer.writeJSON(models.GameOrder{
+		FromGroup: CG_System,
+		FromID:    0,
+		ToGroup:   CG_Person,
+		ToID:      gameClient.ID,
+		Type:      CT_Data,
+		ID:        CT_Data_Player,
+		Data:      gameClient.Data,
+	})
 
 	for {
 		// 获取指令
@@ -82,15 +91,19 @@ func GoGameClientHandle(gameClient *GameClient) {
 		}
 
 		// order.Data = order.Data.(string) + "(dealed)"
-
-		MGameServer.clientMap.Range(func(key, client_ interface{}) bool {
-			client, ok := (client_).(*GameClient)
-			if !ok {
-				models.MConfig.MLogger.Error("dataCenter() gameClientMap cast error")
-				return true
-			}
-			client.Conn.WriteJSON(order)
-			return true
-		})
+		MGameServer.writeJSON(order)
 	}
+}
+
+// writeJSON ...
+func (server *GameServer) writeJSON(order models.GameOrder) {
+	server.clientMap.Range(func(key, client_ interface{}) bool {
+		client, ok := (client_).(*GameClient)
+		if !ok {
+			models.MConfig.MLogger.Error("dataCenter() gameClientMap cast error")
+			return true
+		}
+		client.Conn.WriteJSON(order)
+		return true
+	})
 }
