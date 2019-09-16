@@ -1,5 +1,5 @@
 FROM golang:latest as builder
-ENV GOPATH /var/lib/jenkins/workspace-go/src
+ENV GOPATH /var/lib/jenkins/workspace-go
 ENV APP_ROOT /var/lib/jenkins/workspace-go/src/go-game
 WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}
