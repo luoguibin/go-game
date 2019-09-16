@@ -1,4 +1,8 @@
 FROM golang:latest as builder
+# ENV GOPATH /var/lib/jenkins/workspace/go-game
+ENV APP_ROOT /var/lib/jenkins/workspace/go-game
+WORKDIR ${APP_ROOT}
+COPY ./ ${APP_ROOT}
 WORKDIR /var/lib/jenkins/workspace/go-game
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
