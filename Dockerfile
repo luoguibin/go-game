@@ -1,8 +1,7 @@
 FROM golang:latest
 # ENV GOPATH /home/luoguibin/CompanyCode/go
-ENV APP_ROOT ./
-WORKDIR ${APP_ROOT}
-COPY ./ ${APP_ROOT}
+# ENV APP_ROOT /var/lib/jenkins/workspace/go-game
+# WORKDIR ./
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 FROM alpine:latest
