@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"go-game/helper"
 	"go-game/models"
 	"net/http"
 	"sync"
@@ -63,6 +64,7 @@ func AddToServer(Ctx *context.Context, ID int64) {
 		models.MConfig.MLogger.Error("get ws error:\n%s", err)
 		return
 	}
+	data.OrderMap = make(map[int]models.GameOrder)
 	gameClient.Data = data
 	MGameServer.clientMap.Store(gameClient.ID, gameClient)
 
@@ -71,6 +73,7 @@ func AddToServer(Ctx *context.Context, ID int64) {
 
 // GoGameClientHandle ...
 func GoGameClientHandle(gameClient *GameClient) {
+	// 推送登录角色信息
 	MGameServer.writeJSON(models.GameOrder{
 		FromGroup: CG_System,
 		FromID:    0,
@@ -79,6 +82,27 @@ func GoGameClientHandle(gameClient *GameClient) {
 		Type:      CT_Data,
 		ID:        CT_Data_Player,
 		Data:      gameClient.Data,
+	})
+
+	// 推送在线角色信息
+	var clientDatas []*models.GameData
+	MGameServer.clientMap.Range(func(key, client_ interface{}) bool {
+		client, ok := (client_).(*GameClient)
+		if !ok {
+			models.MConfig.MLogger.Error("dataCenter() gameClientMap cast error")
+			return true
+		}
+		clientDatas = append(clientDatas, client.Data)
+		return true
+	})
+	MGameServer.writeJSON(models.GameOrder{
+		FromGroup: CG_System,
+		FromID:    0,
+		ToGroup:   CG_Person,
+		ToID:      gameClient.ID,
+		Type:      CT_Data,
+		ID:        CT_Data_Players,
+		Data:      clientDatas,
 	})
 
 	for {
@@ -91,6 +115,13 @@ func GoGameClientHandle(gameClient *GameClient) {
 		}
 
 		// order.Data = order.Data.(string) + "(dealed)"
+		order.TimeCreate = helper.GetMillisecond()
+		order.TimeCurrent = order.TimeCreate
+
+		if order.ID == CT_Action_Move {
+			gameClient.Data.OrderMap[CT_Action_Move] = order
+		}
+
 		MGameServer.writeJSON(order)
 	}
 }

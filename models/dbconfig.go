@@ -18,22 +18,10 @@ func InitGorm() {
 
 	dbOrmDefault = db
 
-	db.AutoMigrate(&User{}, &GameData{}, &GameShield{}, &GameSpear{})
+	db.AutoMigrate(&GameData{}, &GameShield{}, &GameSpear{})
 
 	count := 0
-	if db.Model(&User{}).Count(&count); count == 0 {
-		initSystemUser()
-	}
-
 	if db.Model(&GameData{}).Count(&count); count == 0 {
 		initSystemGameData()
-	}
-
-	if db.Model(&GameShield{}).Count(&count); count == 0 {
-		initSystemGameShield()
-	}
-
-	if db.Model(&GameSpear{}).Count(&count); count == 0 {
-		initSystemGameSpear()
 	}
 }

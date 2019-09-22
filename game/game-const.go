@@ -13,6 +13,7 @@ const (
 	CT_Action      = 3000
 	CT_Action_Move = 3001
 
-	CT_Data        = 4000
-	CT_Data_Player = 4001
+	CT_Data         = 4000
+	CT_Data_Player  = 4001
+	CT_Data_Players = 4002
 )

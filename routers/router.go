@@ -19,19 +19,6 @@ func init() {
 	beego.Router("/ws", &controllers.GameController{})
 
 	beego.InsertFilter("/ws", beego.BeforeRouter, func(ctx *context.Context) {
-		controllers.GatewayAccessUser(ctx, false)
+		controllers.GatewayAccessUser(ctx)
 	})
-	beego.InsertFilter("/v1/peotry/create", beego.BeforeRouter, func(ctx *context.Context) {
-		controllers.GatewayAccessUser(ctx, false)
-	})
-
-	//详见　https://beego.me/docs/mvc/controller/router.md
-	nsv := beego.NewNamespace("/v1",
-		beego.NSNamespace("/user",
-			beego.NSRouter("/create", &controllers.UserController{}, "post:CreateUser"),
-			beego.NSRouter("/login", &controllers.UserController{}, "post:LoginUser"),
-		),
-	)
-
-	beego.AddNamespace(nsv)
 }

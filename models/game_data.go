@@ -14,6 +14,8 @@ type GameData struct {
 
 	Spear  *GameSpear  `gorm:"foreignkey:id" json:"spear"`
 	Shield *GameShield `gorm:"foreignkey:id" json:"shield"`
+
+	OrderMap map[int]GameOrder `gorm:"-" json:"orderMap"`
 }
 
 func initSystemGameData() {

@@ -14,6 +14,10 @@ type GameOrder struct {
 	Type int `json:"type"`
 	ID   int `json:"id"`
 
+	// 时间
+	TimeCreate  int64 `json:"timeCreate"`
+	TimeCurrent int64 `json:"timeCurrent"`
+
 	// 附加信息
 	Data interface{} `json:"data"`
 }

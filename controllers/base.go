@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"go-game/models"
 	"strconv"
@@ -10,10 +10,11 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/plugins/cors"
-	"github.com/astaxie/beego/validation"
+
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
-/*****************************/
+// BaseController ...
 type BaseController struct {
 	beego.Controller
 }
@@ -29,6 +30,7 @@ func init() {
 	}))
 }
 
+// respToJSON 缁熶竴鎺ュ彛杩斿洖
 func (c *BaseController) respToJSON(data ResponseData) {
 	respMsg, ok := data[models.STR_MSG]
 	if !ok || (ok && len(respMsg.(string)) <= 0) {
@@ -39,6 +41,7 @@ func (c *BaseController) respToJSON(data ResponseData) {
 	c.ServeJSON()
 }
 
+// BaseGetTest 鍩虹娴嬭瘯璋冪敤
 func (c *BaseController) BaseGetTest() {
 	data := c.GetResponseData()
 
@@ -55,13 +58,14 @@ func (c *BaseController) BaseGetTest() {
 	c.respToJSON(data)
 }
 
-func GatewayAccessUser(ctx *context.Context, setInPost bool) {
-	datas := make(map[string]interface{})
+// GatewayAccessUser ...
+func GatewayAccessUser(ctx *context.Context) {
+	datas := ResponseData{}
 	token := ctx.Input.Query("token")
 
 	if len(token) <= 0 {
 		datas[models.STR_CODE] = models.CODE_ERR
-		datas[models.STR_MSG] = "token不能为空"
+		datas[models.STR_MSG] = "token涓嶈兘涓虹┖"
 		ctx.ResponseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Output.JSON(datas, false, true)
 		return
@@ -71,67 +75,51 @@ func GatewayAccessUser(ctx *context.Context, setInPost bool) {
 	if err != nil {
 		datas[models.STR_CODE] = models.CODE_ERR_TOKEN
 		errStr := err.Error()
+
 		if strings.Contains(errStr, "expired") {
-			datas[models.STR_MSG] = "token失效，请重新登录"
+			datas[models.STR_MSG] = "token澶辨晥锛岃閲嶆柊鐧诲綍"
 		} else {
-			datas[models.STR_MSG] = "token参数错误"
+			datas[models.STR_MSG] = "token鍙傛暟閿欒"
 		}
+
 		ctx.ResponseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Output.JSON(datas, false, false)
 		return
 	}
 
-	// todo
-	if setInPost {
-		uId, _ := strconv.ParseInt(claims["uId"].(string), 10, 64)
-		ctx.Input.SetData("uId", uId)
-		ctx.Input.SetData("level", claims["Level"])
-	} else {
-		ctx.Input.Context.Request.Form.Add("uId", claims["uId"].(string))
-		ctx.Input.Context.Request.Form.Add("level", claims["Level"].(string))
-	}
-
+	userId, _ := strconv.ParseInt(claims["userId"].(string), 10, 64)
+	ctx.Input.SetData("userId", userId)
+	ctx.Input.SetData("level", claims["level"])
+	// ctx.Input.Context.Request.Form.Add("userId", claims["userId"].(string))
 	return
 }
 
-func (c *BaseController) CheckFormParams(data ResponseData, params interface{}) bool {
-	//验证参数是否异常
-	if err := c.ParseForm(params); err != nil {
-		data[models.STR_CODE] = models.CODE_ERR
-		return false
+// CheckUserToken 检测解析token
+func CheckUserToken(tokenString string) (map[string]interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(models.MConfig.JwtSecretKey), nil
+	})
+
+	if err != nil {
+		return nil, err
 	}
 
-	//验证参数
-	valid := validation.Validation{}
-	if ok, _ := valid.Valid(params); ok {
-		return true
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, errors.New("token get mapcliams err")
 	}
-	data[models.STR_CODE] = models.CODE_ERR
-	data[models.STR_MSG] = fmt.Sprint(valid.ErrorsMap)
-	return false
 }
 
-func (c *BaseController) CheckPostParams(data ResponseData, params interface{}) bool {
-	//验证参数是否异常
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &params); err != nil {
-		data[models.STR_CODE] = models.CODE_ERR
-		data[models.STR_MSG] = err.Error()
-		return false
-	}
-	//验证参数
-	valid := validation.Validation{}
-	if ok, _ := valid.Valid(params); ok {
-		return true
-	}
-
-	data[models.STR_CODE] = models.CODE_ERR
-	data[models.STR_MSG] = fmt.Sprint(valid.ErrorsMap)
-	return false
-}
-
-/*****************************/
+// ResponseData ...
 type ResponseData map[string]interface{}
 
-func (self *BaseController) GetResponseData() ResponseData {
+// GetResponseData ...
+func (c *BaseController) GetResponseData() ResponseData {
 	return ResponseData{models.STR_CODE: models.CODE_OK}
 }
