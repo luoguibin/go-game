@@ -109,7 +109,7 @@ func GoGameClientHandle(gameClient *GameClient) {
 		clientDatas = append(clientDatas, client.Data)
 		return true
 	})
-	MGameServer.writeJSON(models.GameOrder{
+	gameClient.Conn.WriteJSON(models.GameOrder{
 		FromGroup: CG_System,
 		FromID:    0,
 		ToGroup:   CG_Person,
