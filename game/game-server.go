@@ -130,8 +130,7 @@ func GoGameClientHandle(gameClient *GameClient) {
 				ToGroup:   CG_Person,
 				ToID:      gameClient.ID,
 				Type:      CT_Data,
-				ID:        CT_Data_Remove,
-				Data:      clientDatas,
+				ID:        CT_Data_Remove
 			})
 			return
 		}
