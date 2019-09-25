@@ -48,6 +48,8 @@ func AddToServer(Ctx *context.Context, ID int64) {
 	if ok {
 		models.MConfig.MLogger.Error("AddToServer repeat ", ID)
 		MGameServer.clientMap.Delete(ID)
+		Ctx.WriteString("已在线，请稍后登录")
+		return;
 	}
 
 	ws, err := upgrader.Upgrade(Ctx.ResponseWriter, Ctx.Request, nil)
