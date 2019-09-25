@@ -123,6 +123,16 @@ func GoGameClientHandle(gameClient *GameClient) {
 		err := gameClient.Conn.ReadJSON(&order)
 		if err != nil {
 			models.MConfig.MLogger.Error("ws read msg error: " + err.Error())
+			MGameServer.clientMap.Delete(gameClient.ID)
+			MGameServer.writeJSON(models.GameOrder{
+				FromGroup: CG_System,
+				FromID:    0,
+				ToGroup:   CG_Person,
+				ToID:      gameClient.ID,
+				Type:      CT_Data,
+				ID:        CT_Data_Remove,
+				Data:      clientDatas,
+			})
 			return
 		}
 
