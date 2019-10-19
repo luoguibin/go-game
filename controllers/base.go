@@ -65,7 +65,7 @@ func GatewayAccessUser(ctx *context.Context) {
 
 	if len(token) <= 0 {
 		datas[models.STR_CODE] = models.CODE_ERR
-		datas[models.STR_MSG] = "token涓嶈兘涓虹┖"
+		datas[models.STR_MSG] = "token不能为空"
 		ctx.ResponseWriter.Header().Set("Access-Control-Allow-Origin", "*")
 		ctx.Output.JSON(datas, false, true)
 		return
@@ -77,9 +77,9 @@ func GatewayAccessUser(ctx *context.Context) {
 		errStr := err.Error()
 
 		if strings.Contains(errStr, "expired") {
-			datas[models.STR_MSG] = "token澶辨晥锛岃閲嶆柊鐧诲綍"
+			datas[models.STR_MSG] = "token失效，请重新登录"
 		} else {
-			datas[models.STR_MSG] = "token鍙傛暟閿欒"
+			datas[models.STR_MSG] = "token参数错误"
 		}
 
 		ctx.ResponseWriter.Header().Set("Access-Control-Allow-Origin", "*")
@@ -89,6 +89,7 @@ func GatewayAccessUser(ctx *context.Context) {
 
 	userId, _ := strconv.ParseInt(claims["userId"].(string), 10, 64)
 	ctx.Input.SetData("userId", userId)
+	ctx.Input.SetData("userName", claims["userName"])
 	ctx.Input.SetData("level", claims["level"])
 	// ctx.Input.Context.Request.Form.Add("userId", claims["userId"].(string))
 	return

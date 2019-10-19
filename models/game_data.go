@@ -19,18 +19,14 @@ type GameData struct {
 }
 
 func initSystemGameData() {
-	count := 0
-	if dbOrmDefault.Model(&GameSpear{}).Count(&count); count == 0 {
-		initSystemGameSpear()
-	}
-	if dbOrmDefault.Model(&GameShield{}).Count(&count); count == 0 {
-		initSystemGameShield()
-	}
+	CreateDefaultGameData(15625045984, "乂末")
+	CreateDefaultGameData(15622222222, "Morge")
+	CreateDefaultGameData(15666666666, "Morge")
+	CreateDefaultGameData(15688888888, "SghenMorge")
+}
 
-	CreateGameData(15625045984, "乂末", 100, 10000, 50, 0, 0)
-	CreateGameData(15622222222, "Morge", 100, 10000, 50, 0, 0)
-	CreateGameData(15666666666, "Morge", 100, 10000, 50, 0, 0)
-	CreateGameData(15688888888, "SghenMorge", 100, 10000, 50, 0, 0)
+func CreateDefaultGameData(ID int64, Name string) {
+	CreateGameData(ID, Name, 100, 10000, 50, 0, 0)
 }
 
 // CreateGameData ...
@@ -48,6 +44,9 @@ func CreateGameData(ID int64, Name string, Level int, Blood int, Speed float64, 
 	if err != nil {
 		MConfig.MLogger.Error(err.Error())
 	}
+
+	CreateGameShield(ID, 800, 80, 0, 0, 0, 0, 0)
+	CreateGameSpear(ID, 1000, 100, 0, 0, 0, 0, 0)
 }
 
 // QueryGameData ...

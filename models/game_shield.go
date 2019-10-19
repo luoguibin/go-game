@@ -15,13 +15,6 @@ type GameShield struct {
 	Earth int `gorm:"column:earth" json:"earth"`
 }
 
-func initSystemGameShield() {
-	CreateGameShield(15625045984, 800, 80, 0, 0, 0, 0, 0)
-	CreateGameShield(15622222222, 800, 80, 0, 0, 0, 0, 0)
-	CreateGameShield(15666666666, 800, 80, 0, 0, 0, 0, 0)
-	CreateGameShield(15688888888, 800, 80, 0, 0, 0, 0, 0)
-}
-
 // CreateGameShield ...
 func CreateGameShield(ID int64, Strength int, Mana int, Metal int, Wood int, Water int, Fire int, Earth int) {
 	gameShield := GameShield{

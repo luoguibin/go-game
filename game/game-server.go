@@ -9,8 +9,8 @@ import (
 	"sync"
 
 	"github.com/astaxie/beego/context"
-	"github.com/gorilla/websocket"
 	"github.com/goinggo/mapstructure"
+	"github.com/gorilla/websocket"
 )
 
 var (
@@ -44,7 +44,7 @@ func (gameServer *GameServer) Start() {
 }
 
 // AddToServer ...
-func AddToServer(Ctx *context.Context, ID int64) {
+func AddToServer(Ctx *context.Context, ID int64, userName string) {
 	client, ok := MGameServer.clientMap.Load(ID)
 	if ok {
 		models.MConfig.MLogger.Error("AddToServer repeat ", ID)
@@ -63,10 +63,20 @@ func AddToServer(Ctx *context.Context, ID int64) {
 		ID:   ID,
 		Conn: ws,
 	}
-	data, err := models.QueryGameData(ID)
+	var data *models.GameData
+	data, err = models.QueryGameData(ID)
 	if err != nil {
-		models.MConfig.MLogger.Error("get ws error:\n%s", err)
-		return
+		if strings.Contains(err.Error(), "record not found") {
+			models.CreateDefaultGameData(ID, userName)
+		} else {
+			models.MConfig.MLogger.Error("get ws error(1):\n%s", err)
+			return
+		}
+		data, err = models.QueryGameData(ID)
+		if err != nil {
+			models.MConfig.MLogger.Error("get ws error(2):\n%s", err)
+			return
+		}
 	}
 	data.OrderMap = make(map[int]*models.GameOrder)
 	gameClient.Data = data
@@ -166,7 +176,7 @@ func (gameServer *GameServer) updatePlayer(client *GameClient, isSave bool) {
 	for _, order := range client.Data.OrderMap {
 		if order.ID == CT_Action_Move {
 			var position Position
-			err :=  mapstructure.Decode(order.Data, &position)
+			err := mapstructure.Decode(order.Data, &position)
 			if err == nil {
 				client.Data.X = position.X
 				// client.Data.Y = position.Y

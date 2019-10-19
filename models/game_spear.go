@@ -15,13 +15,6 @@ type GameSpear struct {
 	Earth int `gorm:"column:earth" json:"earth"`
 }
 
-func initSystemGameSpear() {
-	CreateGameSpear(15625045984, 1000, 100, 0, 0, 0, 0, 0)
-	CreateGameSpear(15622222222, 1000, 100, 0, 0, 0, 0, 0)
-	CreateGameSpear(15666666666, 1000, 100, 0, 0, 0, 0, 0)
-	CreateGameSpear(15688888888, 1000, 100, 0, 0, 0, 0, 0)
-}
-
 // CreateGameSpear ...
 func CreateGameSpear(ID int64, Strength int, Mana int, Metal int, Wood int, Water int, Fire int, Earth int) {
 	gameSpear := GameSpear{
