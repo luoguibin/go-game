@@ -18,6 +18,9 @@ const (
 	CT_Data_Players = 4002
 	CT_Data_Remove  = 4003
 
-	CT_MSG 			= 5000
-    CT_MSG_PERSON 	= 5001
+	CT_MSG        = 5000
+	CT_MSG_PERSON = 5001
+
+	CT_Const       = 6000
+	CT_Const_Heart = 6001
 )

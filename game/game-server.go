@@ -153,6 +153,8 @@ func GoGameClientHandle(gameClient *GameClient) {
 		if order.ID == CT_Action_Move {
 			MGameServer.updatePlayer(gameClient, false)
 			gameClient.Data.OrderMap[CT_Action_Move] = &order
+		} else if (order.ID == CT_Const_Heart) {
+			continue
 		}
 
 		MGameServer.braodcastOrder(order)
